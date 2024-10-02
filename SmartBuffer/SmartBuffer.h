@@ -15,14 +15,6 @@ public:
             return "memory allocation error";
         }
     };
-    class NewCapacityError : public std::exception
-    {
-    public:
-        const char* what() const noexcept override
-        {
-            return "capacity error (hint: check param)";
-        }
-    };
     class EmptyBufferError : public std::exception
     {
     public:
@@ -39,7 +31,7 @@ public:
     {
         if (capacity == 0)
         {
-            throw NewCapacityError();
+            throw AllocationError();
         }
         mBuffer = new (std::nothrow) int[capacity];
         if (mBuffer == nullptr)
@@ -148,11 +140,11 @@ public:
     {
         if (newCapacity == 0)
         {
-            throw NewCapacityError();
+            throw AllocationError();
         }
         if (newCapacity < mSize)
         {
-            throw NewCapacityError();
+            throw AllocationError();
         }
         if (resizeCapacityNoException(newCapacity) == false)
         {
@@ -175,7 +167,7 @@ private:
         return true;
     }
 
-    void shiftLeftByIndex(int index)
+    void shiftLeftByIndex(size_t index) noexcept
     {
         if (index >= mSize)
         {
